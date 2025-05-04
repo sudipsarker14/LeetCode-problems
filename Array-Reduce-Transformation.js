@@ -5,3 +5,4 @@ function reduce(nums, fn, init) {
     }
     return val;
 }
+
