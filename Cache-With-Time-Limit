@@ -1,0 +1,52 @@
+class TimeLimitedCache {
+  constructor() {
+    this.cache = new Map(); // key -> { value, expiryTime }
+  }
+
+  set(key, value, duration) {
+    const currentTime = Date.now();
+    const isExisting = this.cache.has(key) && this.cache.get(key).expiryTime > currentTime;
+
+    this.cache.set(key, {
+      value: value,
+      expiryTime: currentTime + duration
+    });
+
+    return isExisting;
+  }
+
+  get(key) {
+    const currentTime = Date.now();
+    const entry = this.cache.get(key);
+    if (entry && entry.expiryTime > currentTime) {
+      return entry.value;
+    }
+    return -1;
+  }
+
+  count() {
+    const currentTime = Date.now();
+    let count = 0;
+    for (const entry of this.cache.values()) {
+      if (entry.expiryTime > currentTime) {
+        count++;
+      }
+    }
+    return count;
+  }
+}
+
+/**
+ * Example usage with simulated delays:
+ */
+const cache = new TimeLimitedCache();
+console.log(cache.set(1, 42, 100)); // false
+setTimeout(() => {
+  console.log(cache.get(1));       // 42
+  console.log(cache.count());      // 1
+}, 50);
+
+setTimeout(() => {
+  console.log(cache.get(1));       // -1 (expired)
+  console.log(cache.count());      // 0
+}, 150);
